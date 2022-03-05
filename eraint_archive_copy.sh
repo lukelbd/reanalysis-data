@@ -1,75 +1,75 @@
 #!/bin/bash
 # FUNCTION FOR COMPUTING EXTRA REANALYSIS PARAMETERS
 # Install NCL with the temporary fix for unsatisfiable error:
-#   conda create -n ncl_fix -c conda-forge -c conda-forge/label/broken ncl \
-#     poppler=0.52 xerces-c=3.1 gsl
+# conda create -n ncl_fix -c conda-forge -c conda-forge/label/broken ncl \
+# poppler=0.52 xerces-c=3.1 gsl
 # Run "cdo sinfon <file>" to check what is in each; to match number, see:
 # http://apps.ecmwf.int/codes/grib/param-db
 # Summary:
-#   * ei.oper.an.pl.regn128uv.yyyymmddhh contains the following:
-#     - U (131) component of wind
-#     - V (132) component of wind
-#   * ei.oper.an.pl.regn128sc.yyyymmddhh contains the following:
-#     - PV (60) presumably using something like the NCL method
-#     - geopotential (129) in m2/s2
-#     - temperature (130) in K
-#     - specific humidity (133) in kg/kg
-#     - vertical velocity (135) in Pa/s
-#     - relative vorticity (138) in 1/s
-#     - divergence (155) in 1/s
-#     - relative humidity (157) in %
-#     - ozone mass mixing ratio (203) in kg/kg
-#     - specific cloud liquid water content (246) in kg/kg
-#     - specific cloud ice water content (247) in kg/kg
-#     - fraction of cloud cover (248) in 0-1
-#   * ei.oper.an.sfc.regn128sc.yyyymmddhh contains the following:
-#     - low vegetation cover (27)
-#     - high vegetation cover (28)
-#     - low vegetation type (29)
-#     - high vegetation type (30)
-#     - 10m U-wind (165) in m/s
-#     - 10m V-wind (166) in m/s
-#     - skin temp (235) in K
-#     - 2m temp (167) in K
-#     - 2m dewpoint (168) in K
-#     - sea surface temp (34) in K
-#     - snow layer temp (238) in K
-#     - ice temp layer 1 (35) in K
-#     - ice temp layer 2 (36) in K
-#     - ice temp layer 3 (37) in K
-#     - ice temp layer 4 (38) in K
-#     - soil temp level 1 (139) in K
-#     - soil temp level 2 (170) in K
-#     - soil temp level 3 (183) in K
-#     - soil temp level 3 (236) in K
-#     - volumetric soil water layer 1 (39) in m3/m3
-#     - volumetric soil water layer 2 (40) in m3/m3
-#     - volumetric soil water layer 3 (41) in m3/m3
-#     - volumetric soil water layer 4 (42) in m3/m3
-#     - skin reservoir content (198) in m of equiv. water
-#     - total column water (136) in kg/m2
-#     - total column water vapor (137) in kg/m2
-#     - total column ozone (206) in m of equiv. water
-#     - sea-ice cover (31) in 0-1
-#     - snow albedo (32) in 0-1
-#     - snow density (33) in kg/m3
-#     - snow depth (141) in m of equiv. water
-#     - surface pressure (134) in Pa
-#     - mean sea-level pressure slp (151) in Pa ****this may be needed
-#     - stdev of filtered subgrid orography (74) in m
-#     - stdev of orography (160) no units
-#     - surface geopotential (129) in m2/s2
-#     - anisotropy of subgrid orography (161) no units
-#     - angle of subgrid orography (162) in radians
-#     - slope of subgrid orography (163) no units
-#     - land-sea mask (172) in 0-1
-#     - surface roughness (173) in m
-#     - log of surface roughness length for heat (234) no units
-#     - total cloud cover (164) in 0-1
-#     - low cloud-cover (186) in 0-1
-#     - mid cloud-cover (187) in 0-1
-#     - high cloud-cover (188) in 0-1
-#     - charnock (148) no units
+# * ei.oper.an.pl.regn128uv.yyyymmddhh contains the following:
+#   - U (131) component of wind
+#   - V (132) component of wind
+# * ei.oper.an.pl.regn128sc.yyyymmddhh contains the following:
+#   - PV (60) presumably using something like the NCL method
+#   - geopotential (129) in m2/s2
+#   - temperature (130) in K
+#   - specific humidity (133) in kg/kg
+#   - vertical velocity (135) in Pa/s
+#   - relative vorticity (138) in 1/s
+#   - divergence (155) in 1/s
+#   - relative humidity (157) in %
+#   - ozone mass mixing ratio (203) in kg/kg
+#   - specific cloud liquid water content (246) in kg/kg
+#   - specific cloud ice water content (247) in kg/kg
+#   - fraction of cloud cover (248) in 0-1
+# * ei.oper.an.sfc.regn128sc.yyyymmddhh contains the following:
+#   - low vegetation cover (27)
+#   - high vegetation cover (28)
+#   - low vegetation type (29)
+#   - high vegetation type (30)
+#   - 10m U-wind (165) in m/s
+#   - 10m V-wind (166) in m/s
+#   - skin temp (235) in K
+#   - 2m temp (167) in K
+#   - 2m dewpoint (168) in K
+#   - sea surface temp (34) in K
+#   - snow layer temp (238) in K
+#   - ice temp layer 1 (35) in K
+#   - ice temp layer 2 (36) in K
+#   - ice temp layer 3 (37) in K
+#   - ice temp layer 4 (38) in K
+#   - soil temp level 1 (139) in K
+#   - soil temp level 2 (170) in K
+#   - soil temp level 3 (183) in K
+#   - soil temp level 3 (236) in K
+#   - volumetric soil water layer 1 (39) in m3/m3
+#   - volumetric soil water layer 2 (40) in m3/m3
+#   - volumetric soil water layer 3 (41) in m3/m3
+#   - volumetric soil water layer 4 (42) in m3/m3
+#   - skin reservoir content (198) in m of equiv. water
+#   - total column water (136) in kg/m2
+#   - total column water vapor (137) in kg/m2
+#   - total column ozone (206) in m of equiv. water
+#   - sea-ice cover (31) in 0-1
+#   - snow albedo (32) in 0-1
+#   - snow density (33) in kg/m3
+#   - snow depth (141) in m of equiv. water
+#   - surface pressure (134) in Pa
+#   - mean sea-level pressure slp (151) in Pa ****this may be needed
+#   - stdev of filtered subgrid orography (74) in m
+#   - stdev of orography (160) no units
+#   - surface geopotential (129) in m2/s2
+#   - anisotropy of subgrid orography (161) no units
+#   - angle of subgrid orography (162) in radians
+#   - slope of subgrid orography (163) no units
+#   - land-sea mask (172) in 0-1
+#   - surface roughness (173) in m
+#   - log of surface roughness length for heat (234) no units
+#   - total cloud cover (164) in 0-1
+#   - low cloud-cover (186) in 0-1
+#   - mid cloud-cover (187) in 0-1
+#   - high cloud-cover (188) in 0-1
+#   - charnock (148) no units
 ################################################################################
 # Initial stuff
 rerun=false # compute values if already exist
