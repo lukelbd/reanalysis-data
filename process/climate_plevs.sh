@@ -1,16 +1,15 @@
 #!/bin/bash
-######################################################################
+#-----------------------------------------------------------------------------#
 # Combine the yearly files into a climatology
-# For SELECTIVE climatology, need to use e.g. '200[0-9]01fluxes.nc'
+#-----------------------------------------------------------------------------#
+# For selective climatology, need to use e.g. '200[0-9]01fluxes.nc'
 # This has limitations, but easy to use e.g. '[1-2][09][089][0-9]' for 1980-2009
-######################################################################
-# Initial
 flags="-O" # flags
-base=~/data/eraint
-log=eraint_climo.log # store info in here
+base=~/data/era-interim
+log=eraint_climo_plevs.log # store info in here
 cd $base
 
-# Data
+# Get the data
 months=({1..12}) # every month
 years=({1981..2010}) # range for average
 # years=({1980..2015}) # range for average
