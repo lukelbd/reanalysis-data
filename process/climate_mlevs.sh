@@ -10,24 +10,21 @@
 shopt -s nullglob
 cwd=$(pwd)
 base=~/data/era-interim
-log=$cwd/eraint_climo_mlevs.log  # store info in here
+log=$base/eraint_climo_mlevs.log  # store info in here
 ncl=$cwd/${0##*/}.ncl  # script for interpolating and averaging
-flags=-O  # flags
+flags=-O  # cdo flags
+logecho() { echo "$@" | tee -a "$log"; }
+nclcheck() { cat $1 | grep -v "Execute.c" | grep -v "systemfunc" | grep "fatal:" &>/dev/null; }
 cd $base || { echo "Erorr: Failed to go to $base."; exit 1; }
 
-# Check
-nclcheck() {
-  cat $1 | grep -v "Execute.c" | grep -v "systemfunc" | grep "fatal:" &>/dev/null
-}
-
-# Iterate through *months*
+# Iterate through months
+rm $log &>/dev/null
 months=(1 7)
-# months=1
 for month in ${months[@]}; do
   # File names
   month=$(printf "%02d" $month) # 01 02 etc.
   tdt_files=(mlevs/tdt_????-????_${month}.grb2) # note glob will be *sorted* by start year
-  [ ${#tdt_files[@]} -eq 0 ] && echo "Warning: No files found." && continue
+  [ ${#tdt_files[@]} -eq 0 ] && logecho "Warning: No files found." && continue
 
   # Get time means of each, then combine
   # TODO: Should download tdt and msp in the same file.
@@ -36,7 +33,7 @@ for month in ${months[@]}; do
   year2a=0000
   output=()
   for tdt_file in ${tdt_files[@]}; do
-    echo "Interpolating and averaging file: $tdt_file"
+    logecho "Interpolating and averaging file: $tdt_file"
     years=${tdt_file#*_}
     years=${years%_*}
     year1=${years%-*}
@@ -44,31 +41,30 @@ for month in ${months[@]}; do
     year1a=$((year1 < year1a ? year1 : year1a))
     year2a=$((year2 > year2a ? year2 : year2a))
     msp_file=${tdt_file/tdt/msp}
-    ! [ -r "$msp_file" ] && echo "Warning: File $msp_file not found." && continue
+    ! [ -r "$msp_file" ] && logecho "Warning: File $msp_file not found." && continue
     ncl -n -Q "tdt_file=\"$tdt_file\"" "msp_file=\"$msp_file\"" \
-      "output=\"tmp${i}.nc\"" "$ncl"
+      "output=\"tmp${i}.nc\"" "$ncl" 2>&1 | tee -a $log
     # ncl -n -Q "tdt_file=\"$tdt_file\"" "msp_file=\"$msp_file\"" \
-    #   "output=\"tmp${i}.nc\"" "$ncl" | tee &>$log
-    # nclcheck $log && echo "Error: Average failed." && exit 1
+    #   "output=\"tmp${i}.nc\"" "$ncl" 2>&1 | tee -a $log
+    # nclcheck $log && logecho "Error: Average failed." && exit 1
     output+=(tmp${i}.nc)
     i=$((i+1))
-    echo
+    logecho
   done
-  [ ${#output[@]} -eq 0 ] && echo "Error: No files processed." && exit 1
+  [ ${#output[@]} -eq 0 ] && logecho "Error: No files processed." && exit 1
 
-  # Merge data, if more than one file
-  echo "Found years: ${year1a}-${year2a}"
+  # Merge and standardize data
+  logecho "Found years: ${year1a}-${year2a}"
   if [ ${#output[@]} -eq 1 ]; then
     mv ${output[0]} tmp.nc
   else
-    cdo $flags -ensmean ${output[@]} tmp.nc \
-      || { echo "Error: Merge failed."; exit 1; }
+    cdo $flags -ensmean ${output[@]} tmp.nc | tee -a "$log" \
+      || { logecho "Error: Merge failed."; exit 1; }
     rm ${output[@]}
   fi
-  # Standardize to grid
   file=tdt_${year1a}-${year2a}_${month}.nc
-  cdo $flags -remapbil,griddes.txt -invertlat tmp.nc $file \
-    || { echo "Error: Interpolation failed."; exit 1; }
+  cdo $flags -remapbil,griddes.txt -invertlat tmp.nc $file | tee -a "$log" \
+    || { logecho "Error: Interpolation failed."; exit 1; }
   rm tmp.nc
 
   # Optionally add to existing climate file
@@ -76,12 +72,12 @@ for month in ${months[@]}; do
   if [ -r $climate ]; then
     vars=$(cdo $flags -showname $climate)
     if [[ " ${vars[*]} " =~ " tdt " ]]; then
-      echo "Warning: Heating already in file."
+      logecho "Warning: Heating already in file."
     else
-      ncks --no-abc -A $file $climate
+      ncks --no-abc -A $file $climate | tee -a "$log"
     fi
   else
-    echo "Warning: Climate file $climate not found."
+    logecho "Warning: Climate file $climate not found."
   fi
 done
 
