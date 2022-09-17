@@ -32,29 +32,25 @@ ECMWF_LEVOPTS = {
     'sfc': None,
 }
 ECMWF_VAROPTS = {
-    'tdt': '110.162',  # diabatic temp tendency
-    'msp': '152.128',  # model-level surface pressure (use for tdt etc., requires lev=1)
-    'sp': '134.128',  # surface pressure
-    't2m': '167.128',  # 2 meter air temp
-    'd2m': '168.128',  # 2 meter dew point
-    'sst': '34.128',  # sea surface temp
-    'msl': '151.128',  # sea level pressure
-    'slp': '151.128',
-    'z': '129.128',  # geopotential
+    'q': '133.128',  # specific humidity
+    'r': '157.128',  # relative humidity
     't': '130.128',  # temp
     'u': '131.128',  # u wind
     'v': '132.128',  # v wind
     'w': '135.128',  # w wind
-    'q': '133.128',  # specific humidity
-    'r': '157.128',  # relative humidity
-    'vo': '138.128',  # relative vorticity
-    'vort': '138.128',
-    'zeta': '138.128',
-    'pt': '3.128',  # potential temp (available on 2PVU surface)
-    'theta': '3.128',
+    'z': '129.128',  # geopotential
     'p': '54.128',  # pressure (availble on potential temp and 2PVU surfaces)
-    'pres': '54.128',
+    'pt': '3.128',  # potential temp (available on 2PVU surface)
+    'vo': '138.128',  # relative vorticity
     'pv': '60.128',  # potential voriticy (available on pressure and potential temp)
+    'sp': '134.128',  # surface pressure
+    'msl': '151.128',  # sea level pressure
+    'slp': '151.128',  # sea level pressure
+    'msp': '152.128',  # model-level surface pressure (use for tdt etc., requires lev=1)
+    'sst': '34.128',  # sea surface temp
+    't2m': '167.128',  # 2 meter air temp
+    'd2m': '168.128',  # 2 meter dew point
+    'tdt': '110.162',  # diabatic temp tendency
     'precip': '228.128',  # precipitation accumulation
 }
 
