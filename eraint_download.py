@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Get ERA-Interim diabatic heating data on model level coordinates, looping
-through several years.
-Param table: https://rda.ucar.edu/datasets/ds627.0/docs/era_interim_grib_table.html
+Get ERA-Interim diabatic heating data on model level coordinates.
+See: https://rda.ucar.edu/datasets/ds627.0/docs/era_interim_grib_table.html
 """
 import os
 from reanalysis_data import download

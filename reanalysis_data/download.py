@@ -1,21 +1,33 @@
 #!/usr/bin/env python3
 """
 Convenient wrappers for python APIs used to download reanalysis data.
+
+Todo
+----
+Re-write this module to use the more flexible and generalized Climate Data
+Store API, and add support for other reanalysis and observational datasets.
 """
 import calendar
 
 import numpy as np
 
-
-# ECMWF constants. Update this list if you modify script for ERA5, etc.
+# ECMWF constants
 # NOTE: Some variables are technically on "levels" like hybrid
 # level surface pressure but we still need 60 "levels".
 # TODO: Fix the 12 hour thing. Works for some parameters (e.g. diabatic
 # heating, has 3, 6, 9, 12) but other parameters have 0, 6, 12, 18.
+TEMP_LEVS = [
+    265, 270, 285, 300, 315, 330, 350, 370, 395, 430, 475, 530, 600, 700, 850
+]
+PRES_LEVS = [
+    1, 2, 3, 5, 7, 10, 20, 30, 50, 70, 100, 125, 150, 175, 200, 225, 250,
+    300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 775, 800, 825, 850,
+    875, 900, 925, 950, 975, 1000
+]
 ECMWF_LEVOPTS = {
     'ml': range(1, 137 + 1),
-    'pl': [1, 2, 3, 5, 7, 10, 20, 30, 50, 70, 100, 125, 150, 175, 200, 225, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 775, 800, 825, 850, 875, 900, 925, 950, 975, 1000],  # noqa: E501
-    'pt': [265, 270, 285, 300, 315, 330, 350, 370, 395, 430, 475, 530, 600, 700, 850],
+    'pl': PRES_LEVS,
+    'pt': TEMP_LEVS,
     'pv': None,
     'sfc': None,
 }
@@ -93,11 +105,13 @@ def era(
         you selected (e.g. pressure levs, moda), get ``ERROR 6 (MARS_EXPECTED_FIELDS)``.
         For rates of change of *parameterized* processes (i.e. diabatic) see
         `this link <https://confluence.ecmwf.int/pages/viewpage.action?pageId=57448466>`_.
+
+    Other parameters
+    ----------------
     stream : {'oper', 'moda', 'mofm', 'mdfa', 'mnth'}
         The data stream.
     levtype : {'ml', 'pl', 'sfc', 'pt', 'pv'}
-        Level type: model, pressure, surface, potential
-        temperature, and 2PVU surface, respectively.
+        Level type (model, pressure, surface, potential temperature, or 2PVU surface).
     levrange : float or (float, float), optional
         Individual level or range of levels.
     levs : float or ndarray, optional
@@ -115,14 +129,12 @@ def era(
     hours : {0, 6, 12, 18} or list thereof, optional
         Hour(s) (UTC) of observation.
     forecast : bool, optional
-        Whether we want forecast `'fc'` or analysis `'an'` data. Note that
-        some data is only available in `'fc'` mode, e.g. diabatic heating.
+        Whether to use forecast `'fc'` or analysis `'an'` data.
     grid : str, optional
-        The grid type. Default is ``N32`` which returns data on 64 latitudes.
+        The grid type. The default is ``N32`` which returns data on 64 latitudes.
     res : float, optional
-        Alternative to `grid` that specifies the desired output grid resolution
-        in degrees. ERA-Interim has a few valid preset resolutions and will
-        choose the resolution that most closely matches the input.
+        Alternative to `grid` that specifies the desired grid resolution in degrees.
+        ERA-Interim has a few valid preset resolutions and will choose closest match.
     box : str or length-4 list of float, optional
         String name for particular region, e.g. ``'europe'``, or the west,
         south, east, and north boundaries, respectively.
@@ -131,12 +143,12 @@ def era(
     filename : str, optional
         Name of file output.
 
-
     Notes
     -----
-    Some fields (seems true for most model fields) are not archived as
-    monthly means for some reason! Have no idea why because it would need
-    almost zero storage requirements.
+    Some fields (seems true for most model fields) are not archived as monthly means
+    for some reason! Have no idea why because it would need almost zero storage
+    requirements. Also note some data is only available in forecast ``'fc'`` mode
+    but not ``'an'`` analysis mode, e.g. diabatic heating.
     """  # noqa: E501
     # Data stream
     import ecmwfapi as ecmwf  # only do so inside function
@@ -229,19 +241,18 @@ def era(
         else:
             levs = levopts[(levopts >= levrange[0]) & (levopts <= levrange[1])]
         levs = '/'.join(str(l) for l in levs.flat)
-    # Resolution (same in latitude/longitude is required for now)
+
+    # Grid and time specifications
+    # Box is specified as pre-defined region (e.g. string 'europe') or n/s/w/e boundary
     if res is not None:
         grid = '%.5f/%.5f' % (res, res)
     elif grid is None:
         grid = 'N32'
-    # Area specified as pre-defined region (e.g. string 'europe') or n/s/w/e boundary
     if box is not None and not isinstance(box, str):
         box = '/'.join(str(b) for b in (box[3], box[0], box[2], box[1]))
-    # Hour conversion
     if not np.iterable(hours):
         hours = (hours,)
     hours = '/'.join(str(h).zfill(2) for h in hours)  # zfill padds 0s on left
-    # Forecast type
     if forecast:
         dtype, step = 'fc', str(step)
     else:
