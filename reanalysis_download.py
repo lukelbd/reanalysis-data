@@ -11,11 +11,9 @@ base = os.path.expanduser('~/data/eraint')
 # https://www.ecmwf.int/en/forecasts/documentation-and-suppor/correspondence-between-l91-and-l137-model-levels
 # for approx model pressures. We select just 21. See:
 # https://confluence.ecmwf.int/display/EMOS/N32 for available Gaussian grids.
-# L137 (ERA5)
-# NOTE: the last one is at 10mb, rest are 1000mb, 950mb, etc.
+# L137: ERA5 (the last one is at 10mb, rest are 1000mb, 950mb, etc.)
 # levs = [133, 123, 118, 114, 111, 108, 105, 98, 96, 93, 90, 87, 83, 79, 75, 68, 60, 48, 29]  # noqa: E501
-# L91 (ERA5?)
-# WARNING: off track by 65 (525mb, should be 550mb), then back on track by 53 (350mb)
+# L91: ERA5? (off track by 65 (525mb, should be 550mb), then back on by 53 (350mb))
 # levs = [88, 83, 80, 77, 75, 73, 71, 69, 67, 65, 63, 61, 59, 57, 55, 53, 49, 45, 39, 30, 19]  # noqa: E501
 # L60 (ERA-Interim)
 # levs = [58, 54, 51, 49, 47, 45, 43, 41, 39, 37, 35, 33, 31, 29, 26, 22, 14] # 20 or so

@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 """
-Convenient wrappers for python APIs used to download reanalysis data.
-
-Todo
-----
-Re-write this module to use the more flexible and generalized Climate Data
-Store API, and add support for other reanalysis and observational datasets.
+Download reanalysis data using the python APIs. Should use the
+Climate Data Store API and support various diverse datasets.
 """
 import calendar
 
 import numpy as np
 
 # ECMWF constants
-# NOTE: Some variables are technically on "levels" like hybrid
+# NOTE: Note variables are technically on "levels" like hybrid
 # level surface pressure but we still need 60 "levels".
 # TODO: Fix the 12 hour thing. Works for some parameters (e.g. diabatic
 # heating, has 3, 6, 9, 12) but other parameters have 0, 6, 12, 18.
@@ -107,37 +103,35 @@ def era(
     stream : {'oper', 'moda', 'mofm', 'mdfa', 'mnth'}
         The data stream.
     levtype : {'ml', 'pl', 'sfc', 'pt', 'pv'}
-        Level type (model, pressure, surface, potential temperature, or 2PVU surface).
+        The level type (model, pressure, surface, potential temp, or 2 PVU surface).
     levrange : float or (float, float), optional
-        Individual level or range of levels.
+        The individual level or range of levels.
     levs : float or ndarray, optional
-        Individual level or list of levels.
+        The individual level or list of levels.
     yearrange : int or (int, int)
-        Individual year or range of years.
+        The individual year or range of years.
     years : int or ndarray, optional
-        Individual year or list of years.
+        The individual year or list of years.
     monthrange : int or (int, int), optional
-        Individual month or range of months.
+        The individual month or range of months.
     months : int or ndarray, optional
-        Individual month or list of months.
+        The individual month or list of months.
     daterange : (datetime.datetime, datetime.datetime), optional
-        Range of dates.
+        The range of dates.
     hours : {0, 6, 12, 18} or list thereof, optional
-        Hour(s) (UTC) of observation.
+        The hour(s) (UTC) of observation.
     forecast : bool, optional
         Whether to use forecast `'fc'` or analysis `'an'` data.
     grid : str, optional
         The grid type. The default is ``N32`` which returns data on 64 latitudes.
     res : float, optional
-        Alternative to `grid` that specifies the desired grid resolution in degrees.
-        ERA-Interim has a few valid preset resolutions and will choose closest match.
+        The grid resolution in degrees (alternative to `grid`). Closest match is chosen.
     box : str or length-4 list of float, optional
-        String name for particular region, e.g. ``'europe'``, or the west,
-        south, east, and north boundaries, respectively.
+        The region name or the ``(west, south, east, north)`` boundaries`` boundaries.
     format : {'grib1', 'grib2', 'netcdf'}, optional
-        Output format.
+        The output format.
     filename : str, optional
-        Name of file output.
+        The name of file output.
 
     Notes
     -----
